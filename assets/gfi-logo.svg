@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="badge" x1="84" y1="36" x2="428" y2="476" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1a3033"/>
+      <stop offset="0.55" stop-color="#111c22"/>
+      <stop offset="1" stop-color="#0a0f14"/>
+    </linearGradient>
+    <linearGradient id="mint" x1="208" y1="156" x2="304" y2="356" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7ff4e7"/>
+      <stop offset="0.5" stop-color="#4fd1c5"/>
+      <stop offset="1" stop-color="#22b8ad"/>
+    </linearGradient>
+    <linearGradient id="frameA" x1="86" y1="124" x2="238" y2="388" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3c8f89"/>
+      <stop offset="1" stop-color="#1f5d5a"/>
+    </linearGradient>
+    <linearGradient id="frameB" x1="282" y1="124" x2="426" y2="388" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66e6d9"/>
+      <stop offset="1" stop-color="#2d9d95"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(154 104) rotate(54) scale(348)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4fd1c5" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#4fd1c5" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <filter id="centerShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#03100f" flood-opacity="0.65"/>
+    </filter>
+  </defs>
+
+  <rect x="20" y="20" width="472" height="472" rx="118" fill="url(#badge)"/>
+  <rect x="20" y="20" width="472" height="472" rx="118" fill="url(#glow)"/>
+  <rect x="23" y="23" width="466" height="466" rx="115" fill="none" stroke="#31534f" stroke-opacity="0.55" stroke-width="3"/>
+
+  <rect x="78" y="124" width="162" height="264" rx="32" fill="none" stroke="#4fd1c5" stroke-opacity="0.18" stroke-width="24" filter="url(#softGlow)"/>
+  <rect x="78" y="124" width="162" height="264" rx="32" fill="none" stroke="url(#frameA)" stroke-width="22"/>
+  <rect x="272" y="124" width="162" height="264" rx="32" fill="none" stroke="url(#frameB)" stroke-width="22"/>
+
+  <g filter="url(#centerShadow)">
+    <rect x="202" y="154" width="108" height="204" rx="28" fill="url(#mint)"/>
+    <rect x="202" y="154" width="108" height="204" rx="28" fill="none" stroke="#8bfff4" stroke-opacity="0.35" stroke-width="2"/>
+  </g>
+  <path d="M235 211L302 256L235 301Z" fill="#071413"/>
+</svg>

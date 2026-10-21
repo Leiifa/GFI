@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+tools/ffmpeg/
+build_release.log
+models/*.onnx
+out/
+*.mp4
+*.mkv
+*.mov
