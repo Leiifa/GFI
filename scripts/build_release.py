@@ -215,7 +215,7 @@ def build(release: str, ffmpeg_bin_dir: Path) -> Path:
     shutil.copy2(ROOT / "THIRD_PARTY_NOTICES.md", release_dir / "THIRD_PARTY_NOTICES.md")
     shutil.copy2(
         ROOT / "packaging" / "PORTABLE_README.txt",
-        release_dir / "README.txt",
+        release_dir / "START HERE.txt",
     )
     shutil.copytree(BUILD / "stage" / "licenses", release_dir / "licenses")
 
@@ -239,7 +239,9 @@ def build(release: str, ffmpeg_bin_dir: Path) -> Path:
     )
     archive_path = Path(archive)
     checksum = digest(archive_path)
-    (DIST / "SHA256SUMS").write_text(f"{checksum}  {archive_path.name}\n", encoding="ascii")
+    (DIST / "SHA256SUMS.txt").write_text(
+        f"{checksum}  {archive_path.name}\n", encoding="ascii"
+    )
     print(f"\nBuilt {archive_path} ({archive_path.stat().st_size / 1e6:.1f} MB)")
     print(f"SHA-256 {checksum}")
     return archive_path

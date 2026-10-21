@@ -5,19 +5,112 @@
 <h1 align="center">GFI</h1>
 
 <p align="center"><strong>Generate Frame Inbetween</strong><br>
-A small, pipelined video frame interpolation app for Windows.</p>
+Make any video look smoother — on your own PC.</p>
 
-**GFI** pairs a clean desktop window with a streaming engine built around RIFE,
-ONNX Runtime and FFmpeg.
+GFI takes a video, creates new frames between the existing ones, and saves a
+smoother copy. Use it for AI-generated clips, animation, game recordings, or old
+footage. Everything runs locally on your graphics card; your videos are never
+uploaded.
 
-The point is the pipeline: frames are decoded, interpolated and re-encoded
-concurrently over pipes. Nothing is written to a PNG sequence, so the GPU is
-not waiting on the disk.
+<p align="center">
+  <a href="https://github.com/Leiifa/GFI/releases/latest"><strong>Download GFI for Windows</strong></a>
+  ·
+  <a href="#how-to-use-gfi">How to use</a>
+  ·
+  <a href="#for-developers">Build from source</a>
+</p>
 
-```
-ffmpeg decode ──► ring buffer ──► RIFE (DirectML) ──► ordered writer ──► ffmpeg encode
-       │                                                                       │
-       └── scene-cut check ────────────────────────────────────────────────────┘
+![GFI desktop window](docs/gui.png)
+
+## What GFI does
+
+- **Makes video smoother.** It creates the missing frames between existing
+  ones, so 24 or 30 fps footage can play at 60 or 120 fps.
+- **Keeps quality.** 8-bit, 10-bit, HDR10, and HLG videos are handled
+  automatically.
+- **Has an anime mode.** Animation lines and hard cuts get a different
+  interpolation profile.
+- **Keeps the original audio.** The result is a normal video file you can open,
+  share, or edit elsewhere.
+- **Lets you compare first.** GFI renders a draft and shows the original and
+  smoothed video side by side before you save.
+- **Works offline.** No account, cloud upload, or internet connection is needed
+  after the download.
+- **Is not a full video editor.** GFI only creates a new, smoother video file.
+
+## How to use GFI
+
+1. **Download and unzip.** Get the latest `GFI-*-win64.zip` from the
+   [Releases page](https://github.com/Leiifa/GFI/releases/latest). Right-click
+   the zip, choose **Properties**, tick **Unblock**, then extract it somewhere
+   writable such as Desktop or Documents. Do not put it in Program Files.
+2. **Open `gfi.exe`.** No installer, Python, FFmpeg, or administrator rights
+   are needed. The app and its models are inside the folder.
+3. **Drop in a video.** Choose a style, set the frame rate, then click
+   **Start interpolation**.
+4. **Preview and save.** When the draft is ready, compare both sides. Click
+   **Save video…** to keep the result. If you do not want it, close GFI and
+   choose **Discard**.
+
+Windows may show an **Unknown publisher** warning because this build is not
+code-signed. Choose **More info → Run anyway**. This warning is expected in
+v0.1.0.
+
+### What the settings mean
+
+- **Style:** *Live action / general* for normal footage; *Anime / cartoon* for
+  animation and drawings.
+- **Frame rate:** `2×` doubles the frame rate (30 → 60), `3×` triples it, and
+  `4×` quadruples it. *Desired FPS* lets you type an exact target.
+- **Encoder:** H.264 is the most compatible. HEVC/H.265 is smaller for 10-bit
+  and HDR video. AMD hardware encoders are faster on supported Radeon cards.
+- **Quality:** lower numbers mean better quality and larger files. `16` is a
+  good default.
+- **HDR:** *Preserve* keeps HDR10/HLG; *Tone-map to SDR* makes a normal SDR
+  file for HDR sources. Keep the default unless your player cannot show HDR.
+
+## What you need
+
+- Windows 10 or 11 on a 64-bit PC.
+- A graphics card that supports DirectML (most recent NVIDIA, AMD, and Intel
+  GPUs). CPU processing works but is much slower.
+- Enough free disk space for the app and your output video. The unpacked app is
+  under 1 GB.
+- No Python, FFmpeg, model download, account, or admin rights.
+
+## Your files stay on your PC
+
+GFI runs entirely on your machine. It does not upload your videos or require an
+internet connection after the initial download. Settings, temporary drafts, and
+preview cache live in `gfi-data\` next to `gfi.exe`. To remove GFI and its data,
+close the app and delete the whole folder. Saved videos are normal files and are
+never deleted by GFI.
+
+## Common questions
+
+**How long does a render take?**
+It depends on resolution, length, GPU, and frame rate. 720p is usually fast; 4K
+can take several minutes. The progress bar shows the current job.
+
+**Why do I see a draft before the final file?**
+GFI renders to a temporary draft so you can compare the result first. Use
+**Save video…** (or `Ctrl+S`) to keep it. The draft is removed when you close
+GFI and choose **Discard**, or when a newer render replaces it.
+
+**Can I use it without a GPU?**
+Yes, but CPU inference is much slower. A DirectML-capable GPU is strongly
+recommended.
+
+**Can I use it commercially?**
+GFI's own code is MIT-licensed. The bundled FFmpeg build is GPLv3; see
+`THIRD_PARTY_NOTICES.md` in the download for the third-party terms.
+
+## Verify the download (optional)
+
+In PowerShell, compare the file hash with `SHA256SUMS.txt` from the release:
+
+```powershell
+Get-FileHash .\GFI-0.1.0-win64.zip -Algorithm SHA256
 ```
 
 ## Status
@@ -52,33 +145,15 @@ the intermediate rather than producing a morph frame:
 | on | 238 |
 | off | 239 |
 
-## Download and run (Windows)
+## For developers
 
-Download the latest `GFI-*-win64.zip` from the repository's **Releases** page.
+The rest of this README covers source checkouts, the engine internals, and the
+portable build.
 
-1. Verify the download with the `SHA256SUMS` file:
-   ```powershell
-   Get-FileHash .\GFI-0.1.0-win64.zip -Algorithm SHA256
-   ```
-2. Right-click the zip, open **Properties**, tick **Unblock**, then extract it to a
-   writable folder such as Desktop, Documents, or a USB drive. Do not use Program
-   Files: GFI writes its settings and drafts next to `gfi.exe`.
-3. Run `gfi.exe`.
+### Requirements
 
-Python, FFmpeg, model downloads, installation, and administrator rights are not
-needed. The portable build keeps settings, drafts, and preview cache in
-`gfi-data\` next to `gfi.exe`; delete the folder to remove everything.
-
-The build is currently unsigned, so Windows SmartScreen may show **Unknown
-publisher** on first launch. Choose **More info → Run anyway**. Unblocking the zip
-before extracting avoids some of these prompts. If the app grows, the release can
-be signed later without changing the portable layout.
-
-## Requirements
-
-The portable build includes Python, FFmpeg, and both models. The list below applies
-to source checkouts.
-
+The portable build includes Python, FFmpeg, and both models. The list below
+applies to source checkouts.
 
 - Windows 10/11 (the pipeline is portable; DirectML is the Windows path)
 - Python 3.10+
@@ -92,7 +167,7 @@ to source checkouts.
 - HDR output needs HEVC or AV1. `libx265` is the portable choice; `hevc_amf`
   and `av1_amf` are the AMD hardware paths.
 
-## Setup
+### Setup
 
 ```powershell
 python -m venv .venv
@@ -137,20 +212,14 @@ python scripts\build_release.py
 
 The build downloads the pinned Gyan FFmpeg 9.0.2 full build, verifies its SHA-256,
 bundles the models and assets, and writes `dist\GFI-<version>-win64.zip` plus
-`dist\SHA256SUMS`. To reuse an installed Gyan 9.0.2 full build instead of
+`dist\SHA256SUMS.txt`. To reuse an installed Gyan 9.0.2 full build instead of
 downloading it, pass `--ffmpeg-bin-dir "C:\path\to\ffmpeg\bin"`.
 
 The desktop entry point is `gfi.exe`; the CLI is `gfi-cli` (or `python -m gfi`).
 The previous `inbetween.exe` / `inbetween-cli` names remain available as
 compatibility aliases.
 
-## Desktop window
-
-```powershell
-.\.venv\Scripts\gfi.exe
-```
-
-![GFI window](docs/gui.png)
+## Using the desktop window
 
 Drop a video anywhere on the window (or click the drop zone), choose a frame
 rate and press **Start interpolation**. After loading, the source card gets a
@@ -181,11 +250,9 @@ the last good result. Saved copies are independent files and are not touched by
 later renders or draft cleanup.
 
 The window remembers your style, encoder, HDR mode, quality, frame rate, size
-and workspace split; preferences from the previous Inbetween name are migrated
-automatically. Old compact-window geometry is intentionally ignored so the
-first launch opens the full two-pane layout. **Cancel** stops the job and
-removes the partial draft. **Details** shows engine messages and warnings; a
-failure opens it automatically.
+and workspace split. **Cancel** stops the job and removes the partial draft.
+**Details** shows engine messages and warnings; a failure opens it
+automatically.
 
 ### Style
 
@@ -322,6 +389,12 @@ python -m gfi input.mp4 --dry-run
 | `--dry-run` | print the FFmpeg commands and exit |
 
 ## How it works
+
+```
+ffmpeg decode ──► ring buffer ──► RIFE (DirectML) ──► ordered writer ──► ffmpeg encode
+       │                                                                       │
+       └── scene-cut check ────────────────────────────────────────────────────┘
+```
 
 1. `ffprobe` reads dimensions, frame rate, duration, color tags, bit depth and
    rotation. HDR10/HLG is detected from the transfer function.
